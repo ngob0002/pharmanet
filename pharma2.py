@@ -1,17 +1,55 @@
 import streamlit as st
 
-# Mock Database
-users = {"pharmacist1": "password123"}
+# Updated database with more users and prescriptions
+users = {
+    "pharmacist1": "password123",
+    "pharmacist2": "securepass",
+    "pharmacist3": "admin123",
+    "pharmacist4": "bluepharma"
+}
+
 medications = {
     "Atorvastatin": {"stock": 10},
     "Acetaminophen": {"stock": 5},
     "Lisinopril": {"stock": 0},
+    "Metformin": {"stock": 20},
+    "Ibuprofen": {"stock": 15}
 }
+
 prescriptions = [
     {"id": 1, "patient": "John Doe", "medication": "Atorvastatin", "status": "Pending"},
     {"id": 2, "patient": "Jane Smith", "medication": "Lisinopril", "status": "Pending"},
+    {"id": 3, "patient": "Alice Brown", "medication": "Metformin", "status": "Pending"},
+    {"id": 4, "patient": "Bob White", "medication": "Ibuprofen", "status": "Pending"},
+    {"id": 5, "patient": "Charlie Green", "medication": "Acetaminophen", "status": "Pending"}
 ]
-messages = []  # For patient communication
+
+# Define a custom CSS style for the app
+custom_css = """
+<style>
+    body {
+        background-color: #f0f8ff; /* Light blue background */
+        color: #000080; /* Navy text */
+    }
+    .stButton>button {
+        background-color: #4682b4; /* Steel blue button */
+        color: white;
+        border-radius: 5px;
+        border: none;
+        padding: 8px 16px;
+        font-size: 16px;
+    }
+    .stSidebar {
+        background-color: #e6f2ff; /* Very light blue sidebar */
+    }
+    h1, h2, h3, h4, h5, h6 {
+        color: #000080; /* Navy headings */
+    }
+</style>
+"""
+
+# Apply custom CSS
+st.markdown(custom_css, unsafe_allow_html=True)
 
 
 # Login Function
@@ -20,10 +58,14 @@ def login(username, password):
 
 
 # Streamlit App
-st.title("WELCOME TO PHARMANET")
+st.title("Pharmacy Management System")
 
+# Initialize session state variables
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
+
+if 'messages' not in st.session_state:
+    st.session_state.messages = []  # Initialize messages list
 
 if not st.session_state.logged_in:
     st.subheader("Login")
@@ -41,7 +83,10 @@ else:
     st.sidebar.title("Menu")
     option = st.sidebar.radio(
         "Select an option:",
-        ["Dashboard", "View Prescriptions", "Fill Prescription", "Inventory Management", "Patient Communication",
+        ["Dashboard", "View Prescriptions",
+         "Fill Prescription",
+         "Inventory Management",
+         "Patient Communication",
          "Logout"]
     )
 
@@ -108,13 +153,15 @@ else:
         message_content = st.text_area("Message Content")
 
         if st.button("Send Message"):
-            messages.append({"patient": patient_name, "message": message_content})
+            # Append message to session state messages list
+            st.session_state.messages.append({"patient": patient_name,
+                                              "message": message_content})
             st.success(f"Message sent to {patient_name}!")
 
         # View all messages
-        if messages:
+        if len(st.session_state.messages) > 0:
             st.subheader("Message History")
-            for msg in messages:
+            for msg in st.session_state.messages:
                 st.write(f"To: {msg['patient']} - Message: {msg['message']}")
 
     # Logout
